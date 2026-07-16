@@ -1,6 +1,8 @@
 const ADMIN_USER = "Ghoostcx";
 const ADMIN_PASS = "Ghoostcx55";
-const socket = io("http://localhost:3000");
+
+// Render.com üzerindeki canlı Backend adresi
+const socket = io("https://af2-1-e3fl.onrender.com");
 
 // 1 SAATLİK OTOMATİK OTURUM KAPANMA MANTIĞI (Inactivity Timeout)
 const ONE_HOUR = 60 * 60 * 1000;
@@ -11,7 +13,7 @@ function checkSession() {
     const now = Date.now();
 
     if (loginTime && lastActivity) {
-        // Admin 1 saat boyunca hiçbir işlem yapmadıysa
+        // Admin 1 saat boyunca hiçbir işlem yapmadıysa oturumu kapat
         if (now - parseInt(lastActivity) > ONE_HOUR) {
             logout();
             alert("1 saat boyunca işlem yapılmadığı için oturumunuz kapatıldı.");
@@ -62,6 +64,8 @@ function showDashboard() {
 // Sayfa yüklendiğinde oturumu kontrol et
 checkSession();
 
+// --- SOCKET.IO DİNLEYİCİLERİ ---
+
 socket.on('console-log', (data) => {
     appendLog(data.time, data.type, data.message);
 });
@@ -81,6 +85,7 @@ socket.on('bot-list-update', (botList) => {
 
 socket.on('db-bots-update', (dbBots) => {
     const box = document.getElementById("db-bots-list");
+    if (!box) return;
     box.innerHTML = "";
     
     dbBots.forEach(bot => {
@@ -94,6 +99,8 @@ socket.on('db-bots-update', (dbBots) => {
     });
 });
 
+// --- AKSİYON FONKSİYONLARI ---
+
 function saveAndConnectBot() {
     const host = document.getElementById("serverIp").value;
     const port = document.getElementById("serverPort").value;
@@ -104,6 +111,8 @@ function saveAndConnectBot() {
     if (host && username) {
         socket.emit('save-and-connect-bot', { host, port, username, autoReconnect, autoCommand });
         document.getElementById("botName").value = "";
+    } else {
+        alert("Lütfen sunucu IP adresi ve bot ismi girin!");
     }
 }
 
@@ -119,6 +128,8 @@ function disconnectBot() {
     const username = document.getElementById("activeBotSelect").value;
     if (username !== "ALL") {
         socket.emit('disconnect-bot', { username });
+    } else {
+        alert("Lütfen listeden spesifik bir bot seçin.");
     }
 }
 
@@ -145,6 +156,8 @@ function startMultiSpam() {
     const messages = rawText.split('\n').filter(msg => msg.trim() !== "");
     if (messages.length > 0 && interval) {
         socket.emit('start-multi-spam', { username, messages, interval: parseInt(interval) });
+    } else {
+        alert("Lütfen en az bir mesaj ve geçerli bir saniye aralığı girin!");
     }
 }
 
@@ -153,11 +166,17 @@ function stopSpam() {
     socket.emit('stop-spam', { username });
 }
 
-function handleKeyPress(e) { if (e.key === 'Enter') sendChatMessage(); }
-function clearConsole() { document.getElementById("console-output").innerHTML = ""; }
+function handleKeyPress(e) { 
+    if (e.key === 'Enter') sendChatMessage(); 
+}
+
+function clearConsole() { 
+    document.getElementById("console-output").innerHTML = ""; 
+}
 
 function appendLog(time, type, message) {
     const box = document.getElementById("console-output");
+    if (!box) return;
     const line = document.createElement("div");
     line.className = `log-line ${type}`;
     line.innerHTML = `<span class="log-time">[${time}]</span> ${escapeHtml(message)}`;
