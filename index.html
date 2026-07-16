@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghoostcx - Multi Bot Console</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+
+    <div id="login-screen" class="card">
+        <h2>👻 Ghoostcx Portal</h2>
+        <input type="text" id="username" placeholder="Kullanıcı Adı">
+        <input type="password" id="password" placeholder="Şifre">
+        <button onclick="login()">GİRİŞ YAP</button>
+        <p id="login-error" class="error-msg">Hatalı Kullanıcı Adı veya Şifre!</p>
+    </div>
+
+    <div id="dashboard" class="main-layout" style="display: none;">
+        
+        <header class="top-bar">
+            <div class="logo">👻 GHOOSTCX <span>MULTI-BOT CLIENT</span></div>
+            <div class="stats">
+                <span>Aktif Bot: <b id="bot-count">0</b></span>
+                <button class="btn-small btn-danger" onclick="logout()">Çıkış Yap</button>
+            </div>
+        </header>
+
+        <div class="content-grid">
+            
+            <div class="control-panel card">
+                <h3>➕ Bot Ekle & Kaydet</h3>
+                <input type="text" id="serverIp" placeholder="Sunucu IP (örn: melonya.com)">
+                <input type="text" id="serverPort" value="25565" placeholder="Port">
+                <input type="text" id="botName" placeholder="Bot Nickname">
+                <input type="text" id="autoCommand" value="/towny" placeholder="Girişte Otomatik Komut (örn: /towny)">
+                
+                <label class="checkbox-container">
+                    <input type="checkbox" id="autoReconnectCheck" checked>
+                    Otomatik Yeniden Bağlan (Auto-Reconnect)
+                </label>
+
+                <button class="btn-primary" onclick="saveAndConnectBot()">BOTU KAYDET VE BAĞLA</button>
+
+                <hr class="divider">
+
+                <h3>💾 Veritabanındaki Kayıtlı Botlar</h3>
+                <button class="btn-success" onclick="connectAllDbBots()">⚡ TÜM KAYITLI BOTLARI BAĞLA</button>
+                <div id="db-bots-list" class="db-list-box"></div>
+
+                <hr class="divider">
+
+                <h3>🤖 Aktif Bot Yönetimi</h3>
+                <select id="activeBotSelect">
+                    <option value="ALL">-- TÜM BOTLAR (TOPLU) --</option>
+                </select>
+                <button class="btn-danger" onclick="disconnectBot()">SEÇİLİ BOTU ÇIKAR</button>
+
+                <hr class="divider">
+
+                <h3>🚀 Çoklu Spam Listesi</h3>
+                <textarea id="spamMessages" rows="3" placeholder="Her satıra 1 mesaj:&#10;Sa&#10;Nasılsınız"></textarea>
+                <input type="number" id="interval" placeholder="Saniye (örn: 5)">
+                <button class="btn-success" onclick="startMultiSpam()">SPAM BAŞLAT</button>
+                <button class="btn-warning" onclick="stopSpam()">SPAM DURDUR</button>
+            </div>
+
+            <div class="console-panel card">
+                <div class="console-header">
+                    <span>⚡ CANLI KONSOL LOGLARI</span>
+                    <button class="btn-small" onclick="clearConsole()">Temizle</button>
+                </div>
+                
+                <div id="console-output" class="console-box"></div>
+
+                <div class="console-input-area">
+                    <input type="text" id="chatInput" placeholder="Seçili bota komut/mesaj gönder..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendChatMessage()">GÖNDER</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
