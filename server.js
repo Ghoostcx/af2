@@ -17,6 +17,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Tarayıcıdan Render linkine girildiğinde görünen durum sayfası
+app.get('/', (req, res) => {
+    res.send('<h1>👻 Ghoostcx Bot Backend Aktif ve Çalışıyor!</h1>');
+});
+
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
@@ -86,7 +91,7 @@ function createBot(host, username, port = 25565, autoCommand = '/towny') {
         host: host,
         port: parseInt(port),
         username: username,
-        version: '1.20.4', // MELONYA SÜRÜM DÜZELTMESİ (1.20.4 zorunluluğu)
+        version: '1.20.4', // Melonya 1.20.4 - 1.21.8 zorunluluğu için sabitlendi
         checkTimeoutInterval: 90 * 1000,
         hideErrors: true,
         brand: 'vanilla'
@@ -117,7 +122,7 @@ function createBot(host, username, port = 25565, autoCommand = '/towny') {
         updateBotList();
         startAntiAFK(bot);
 
-        // GECİKMELİ KOMUT GÖNDERME
+        // KESİN ÇÖZÜM: /towny KOMUTUNU GECİKMELİ GÖNDERME
         if (autoCommand && autoCommand.trim() !== '') {
             logToConsole('system', `3 saniye icinde otomatik komut atilacak: ${autoCommand}`, username);
             setTimeout(() => {
@@ -304,8 +309,7 @@ io.on('connection', (socket) => {
     });
 });
 
-// Eski hali: const PORT = 3000;
-// YENİ HALİ:
+// Render.com otomatik Port ataması için dinamik port kullanımı
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`GHOOSTCX DATABASE BOT SERVER ONLINE: ${PORT}`);
