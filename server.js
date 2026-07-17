@@ -17,9 +17,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Tarayıcıdan Render linkine girildiğinde görünen durum sayfası
+// HTML, CSS ve JS (Frontend) dosyalarını doğrudan dışarı sunma
+app.use(express.static(__dirname));
+
 app.get('/', (req, res) => {
-    res.send('<h1>👻 Ghoostcx Bot Backend Aktif ve Çalışıyor!</h1>');
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const server = http.createServer(app);
@@ -91,18 +93,18 @@ function createBot(host, username, port = 25565, autoCommand = '/towny') {
         host: host,
         port: parseInt(port),
         username: username,
-        version: '1.20.4', // Melonya 1.20.4 - 1.21.8 zorunluluğu için sabitlendi
+        version: '1.20.4', // Melonya 1.20.4 sürüm zorunluluğu
         checkTimeoutInterval: 90 * 1000,
         hideErrors: true,
         brand: 'vanilla'
     });
 
-    // Kaynak Paketi Onayı
+    // Otomatik Kaynak Paketi Onayı
     bot._client.on('resource_pack_send', () => {
         logToConsole('system', 'Sunucu kaynak paketi istedi. Otomatik onaylaniyor...', username);
-        bot._client.write('resource_pack_receive', { result: 3 }); // Kabul Edildi
+        bot._client.write('resource_pack_receive', { result: 3 });
         setTimeout(() => {
-            if (bot._client) bot._client.write('resource_pack_receive', { result: 0 }); // Yüklendi
+            if (bot._client) bot._client.write('resource_pack_receive', { result: 0 });
         }, 600);
     });
 
@@ -122,7 +124,7 @@ function createBot(host, username, port = 25565, autoCommand = '/towny') {
         updateBotList();
         startAntiAFK(bot);
 
-        // KESİN ÇÖZÜM: /towny KOMUTUNU GECİKMELİ GÖNDERME
+        // OTOMATİK KOMUTU GECİKMELİ GÖNDERME
         if (autoCommand && autoCommand.trim() !== '') {
             logToConsole('system', `3 saniye icinde otomatik komut atilacak: ${autoCommand}`, username);
             setTimeout(() => {
@@ -208,7 +210,6 @@ io.on('connection', (socket) => {
     updateBotList();
     sendDbBotsList(socket);
 
-    // Bot Kaydet ve Bağla
     socket.on('save-and-connect-bot', (data) => {
         const { host, port, username, autoReconnect, autoCommand } = data;
 
@@ -232,14 +233,12 @@ io.on('connection', (socket) => {
         createBot(host, username, port, autoCommand);
     });
 
-    // Kayıtlı Botu Veritabanından Sil
     socket.on('delete-db-bot', (data) => {
         db.run(`DELETE FROM saved_bots WHERE username = ?`, [data.username], function(err) {
             if(!err) sendDbBotsList(io);
         });
     });
 
-    // Kayıtlı Tüm Botları Bağla
     socket.on('connect-all-db-bots', () => {
         db.all(`SELECT * FROM saved_bots`, [], (err, rows) => {
             if (!err) {
@@ -309,7 +308,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// Render.com otomatik Port ataması için dinamik port kullanımı
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`GHOOSTCX DATABASE BOT SERVER ONLINE: ${PORT}`);
