@@ -1,10 +1,10 @@
 const ADMIN_USER = "Ghoostcx";
 const ADMIN_PASS = "Ghoostcx55";
 
-// Render.com üzerindeki canlı Backend adresi
-const socket = io("https://af2-1-e3fl.onrender.com");
+// Sunucuya dinamik olarak otomatik bağlanır (Render veya Localhost uyumlu)
+const socket = io();
 
-// 1 SAATLİK OTOMATİK OTURUM KAPANMA MANTIĞI (Inactivity Timeout)
+// 1 SAATLİK OTOMATİK OTURUM KAPANMA MANTIĞI
 const ONE_HOUR = 60 * 60 * 1000;
 
 function checkSession() {
@@ -13,7 +13,6 @@ function checkSession() {
     const now = Date.now();
 
     if (loginTime && lastActivity) {
-        // Admin 1 saat boyunca hiçbir işlem yapmadıysa oturumu kapat
         if (now - parseInt(lastActivity) > ONE_HOUR) {
             logout();
             alert("1 saat boyunca işlem yapılmadığı için oturumunuz kapatıldı.");
@@ -31,7 +30,6 @@ function updateActivity() {
     localStorage.setItem("lastActivity", Date.now().toString());
 }
 
-// Kullanıcı hareket ettikçe aktivite süresini yenile
 window.addEventListener("click", updateActivity);
 window.addEventListener("keypress", updateActivity);
 
@@ -72,6 +70,7 @@ socket.on('console-log', (data) => {
 
 socket.on('bot-list-update', (botList) => {
     const select = document.getElementById("activeBotSelect");
+    if (!select) return;
     document.getElementById("bot-count").innerText = botList.length;
     
     select.innerHTML = '<option value="ALL">-- TÜM BOTLAR (TOPLU) --</option>';
